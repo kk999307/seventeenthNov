@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <title>A Question For You 💌</title>
+  <style>
+    :root {
+      --pink: #ff6f91;
+      --pink-dark: #d6436b;
+      --cream: #fff5f7;
+      --text: #3a2a30;
+      --accent: #ffd36e;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(160deg, #ffe3ec, #ffd6e0 40%, #ffc9d6);
+      color: var(--text);
+      overflow-x: hidden;
+      touch-action: manipulation;
+    }
+
+    .screen {
+      min-height: 100svh;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 16px;
+      text-align: center;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    button {
+      touch-action: manipulation;
+      min-height: 44px;
+    }
+
+    input {
+      font-size: 16px !important;
+    }
+
+    /* prevents iOS auto-zoom on focus */
+
+    /* ---------- LOGIN ---------- */
+    .card {
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 20px;
+      padding: 36px 28px;
+      box-shadow: 0 10px 30px rgba(214, 67, 107, 0.25);
+      max-width: 360px;
+      width: 100%;
+    }
+
+    .card h1 {
+      margin-top: 0;
+      font-size: 1.4rem;
+      color: var(--pink-dark);
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      margin: 8px 0;
+      border-radius: 10px;
+      border: 2px solid #ffc3d1;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--pink);
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .btn-primary {
+      background: var(--pink);
+      color: white;
+      padding: 12px 26px;
+      margin-top: 10px;
+      box-shadow: 0 6px 16px rgba(255, 111, 145, 0.45);
+      transition: transform .15s ease;
+    }
+
+    .btn-primary:hover {
+      transform: scale(1.05);
+    }
+
+    #loginError {
+      color: #c0304a;
+      font-size: .9rem;
+      min-height: 1.2em;
+      margin-top: 6px;
+    }
+
+    /* ---------- QUESTION ---------- */
+    #questionScreen h1 {
+      font-size: clamp(1.6rem, 5vw, 2.6rem);
+      color: var(--pink-dark);
+      margin-bottom: 10px;
+    }
+
+    #questionScreen p.sub {
+      opacity: .75;
+      margin-bottom: 34px;
+    }
+
+    .choice-row {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      min-height: 120px;
+      flex-wrap: wrap;
+    }
+
+    #yesBtn {
+      background: var(--pink);
+      color: #fff;
+      padding: 14px 30px;
+      font-size: 1.1rem;
+      box-shadow: 0 8px 20px rgba(255, 111, 145, 0.45);
+      transition: all .25s cubic-bezier(.34, 1.56, .64, 1);
+    }
+
+    #noBtn {
+      background: #f2f2f2;
+      color: #555;
+      padding: 14px 30px;
+      font-size: 1.1rem;
+      position: relative;
+    }
+
+    #yesCount {
+      display: block;
+      font-size: .8rem;
+      margin-top: 10px;
+      opacity: .6;
+    }
+
+    /* ---------- KITTY EXCITEMENT ---------- */
+    #kittyBox {
+      margin-top: 28px;
+      min-height: 70px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    #kittyEmoji {
+      font-size: 2.2rem;
+      transition: transform .25s cubic-bezier(.34, 1.56, .64, 1);
+      display: inline-block;
+    }
+
+    #kittyLabel {
+      font-size: .8rem;
+      opacity: .7;
+    }
+
+    .kitty-pulse {
+      animation: kittyPulse .4s ease;
+    }
+
+    @keyframes kittyPulse {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.4) rotate(-6deg);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    /* ---------- CAT MEME POPUP ---------- */
+    #catMemeOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 70;
+      padding: 16px;
+    }
+
+    #catMemeCard {
+      background: #fff;
+      border-radius: 18px;
+      padding: 16px;
+      max-width: min(360px, 92vw);
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 14px 34px rgba(0, 0, 0, .35);
+    }
+
+    #catMemeCard img {
+      width: 100%;
+      max-height: 320px;
+      object-fit: cover;
+      border-radius: 12px;
+      display: block;
+      background: #eee;
+    }
+
+    #catMemeCaption {
+      font-weight: 700;
+      margin: 10px 0 4px;
+      color: var(--pink-dark);
+    }
+
+    #catMemeSub {
+      font-size: .85rem;
+      opacity: .7;
+      margin-bottom: 10px;
+    }
+
+    /* ---------- MOBILE TWEAKS ---------- */
+    @media (max-width: 480px) {
+      .choice-row {
+        gap: 16px;
+        min-height: 100px;
+      }
+
+      #yesBtn,
+      #noBtn {
+        padding: 12px 22px;
+        font-size: 1rem;
+      }
+
+      #mapWrap {
+        width: 96vw;
+      }
+
+      .pin-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 15px;
+      }
+
+      .pin-label {
+        font-size: 8.5px;
+        max-width: 80px;
+      }
+
+      .avatar-photo {
+        width: 26px;
+        height: 26px;
+      }
+
+      #passwordModal,
+      #catMemeCard {
+        padding: 20px 16px;
+      }
+    }
+
+    /* ---------- CONFETTI ---------- */
+    #confettiLayer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 50;
+      overflow: hidden;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      top: -10px;
+      width: 10px;
+      height: 16px;
+      opacity: .9;
+      animation: fall linear forwards;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(110vh) rotate(540deg);
+        opacity: 1;
+      }
+    }
+
+    /* ---------- JOURNEY MAP ---------- */
+    #journeyScreen {
+      padding-top: 30px;
+    }
+
+    #journeyScreen h2 {
+      color: var(--pink-dark);
+      margin-bottom: 2px;
+    }
+
+    #journeyScreen p.sub {
+      opacity: .7;
+      margin: 0 0 14px;
+      font-size: .9rem;
+    }
+
+    #mapWrap {
+      position: relative;
+      width: min(820px, 94vw);
+      aspect-ratio: 820/520;
+      background: linear-gradient(180deg, #bdeaff 0%, #d9f4ff 38%, #cdeeb0 38%, #a9dd86 100%);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+      margin: 0 auto;
+    }
+
+    .deco {
+      position: absolute;
+      font-size: 28px;
+      opacity: .9;
+      filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .08));
+      pointer-events: none;
+    }
+
+    #mapSvgPath {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .loc-pin {
+      position: absolute;
+      transform: translate(-50%, -100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .loc-pin.disabled {
+      cursor: default;
+    }
+
+    .pin-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 19px;
+      background: #fff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, .25);
+      border: 3px solid var(--pink);
+      transition: transform .2s ease;
+    }
+
+    .loc-pin:not(.disabled):hover .pin-icon {
+      transform: scale(1.12);
+    }
+
+    .loc-pin.locked .pin-icon {
+      border-color: #bbb;
+      background: #f2f2f2;
+      color: #888;
+    }
+
+    .loc-pin.unlocked .pin-icon {
+      border-color: var(--pink-dark);
+      background: var(--pink);
+      color: #fff;
+    }
+
+    .loc-pin.current .pin-icon {
+      animation: pinGlow 1.4s ease-in-out infinite;
+    }
+
+    @keyframes pinGlow {
+
+      0%,
+      100% {
+        box-shadow: 0 4px 10px rgba(255, 111, 145, .35);
+      }
+
+      50% {
+        box-shadow: 0 4px 22px rgba(255, 111, 145, .85);
+      }
+    }
+
+    .pin-label {
+      margin-top: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--pink-dark);
+      background: rgba(255, 255, 255, .88);
+      border-radius: 6px;
+      padding: 2px 5px;
+      white-space: nowrap;
+      max-width: 110px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .avatar-pair {
+      position: absolute;
+      display: flex;
+      z-index: 5;
+      transition: left 1s cubic-bezier(.4, 0, .2, 1), top 1s cubic-bezier(.4, 0, .2, 1);
+      transform: translate(-50%, -50%);
+    }
+
+    .avatar-photo {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, .3);
+      object-fit: cover;
+      background: #ffd0dc;
+      margin-left: -8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .avatar-photo:first-child {
+      margin-left: 0;
+    }
+
+    #storyCards {
+      width: min(820px, 94vw);
+      margin: 18px auto 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      text-align: left;
+    }
+
+    .story-card {
+      background: rgba(255, 255, 255, .88);
+      border-radius: 14px;
+      padding: 12px 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
+    }
+
+    .story-card h4 {
+      margin: 0 0 4px;
+      color: var(--pink-dark);
+      font-size: .95rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .story-card p {
+      margin: 0;
+      font-size: .88rem;
+      line-height: 1.4;
+    }
+
+    .story-card.locked p {
+      opacity: .55;
+      font-style: italic;
+    }
+
+    /* ---------- MODAL ---------- */
+    #modalOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 60;
+    }
+
+    #passwordModal {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px 24px;
+      max-width: 340px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 14px 34px rgba(0, 0, 0, .3);
+    }
+
+    #passwordModal h3 {
+      margin-top: 0;
+      color: var(--pink-dark);
+    }
+
+    #modalError {
+      color: #c0304a;
+      font-size: .85rem;
+      min-height: 1.2em;
+    }
+
+    #clueReveal {
+      margin-top: 14px;
+      font-size: .95rem;
+      background: var(--cream);
+      border-radius: 10px;
+      padding: 10px;
+      display: none;
+    }
+
+    /* ---------- FINALE ---------- */
+    #finaleScreen h1 {
+      color: var(--pink-dark);
+      font-size: clamp(1.8rem, 6vw, 3rem);
+    }
+
+    #finaleScreen .emoji-row {
+      font-size: 2.4rem;
+      margin: 14px 0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ========================================================= -->
+  <!-- EDIT ME: all the stuff you'll want to customize is in the  -->
+  <!-- CONFIG object inside the <script> at the bottom.            -->
+  <!-- ========================================================= -->
+
+  <!-- LOGIN SCREEN -->
+  <div id="loginScreen" class="screen">
+    <div class="card">
+      <h1>Hey you 👀</h1>
+      <p>This one's just for you.</p>
+      <input id="loginUser" type="text" placeholder="Username" autocomplete="off">
+      <input id="loginPass" type="password" placeholder="Password">
+      <div id="loginError"></div>
+      <button class="btn-primary" onclick="tryLogin()">Enter</button>
+    </div>
+  </div>
+
+  <!-- QUESTION SCREEN -->
+  <div id="questionScreen" class="screen hidden">
+    <h1 id="questionText">Do you wanna spend your birthday with me??</h1>
+    <p class="sub">it's a simple question really...</p>
+    <div class="choice-row">
+      <button id="yesBtn" onclick="clickYes()">Yes</button>
+      <button id="noBtn" onmouseenter="dodge()" onclick="handleNoClick()">No</button>
+    </div>
+    <span id="yesCount"></span>
+    <div id="kittyBox">
+      <span id="kittyEmoji">😺</span>
+      <span id="kittyLabel"></span>
+    </div>
+  </div>
+
+  <div id="confettiLayer"></div>
+
+  <!-- CAT MEME POPUP (shown on every "No" click) -->
+  <div id="catMemeOverlay" class="hidden">
+    <div id="catMemeCard">
+      <img id="catMemeImg" src="" alt="funny cat meme">
+      <div id="catMemeCaption"></div>
+      <div id="catMemeSub">even the cat thinks "no" is the wrong answer</div>
+      <button class="btn-primary" onclick="closeCatMeme()">ok fine, let me reconsider</button>
+    </div>
+  </div>
+
+  <!-- JOURNEY MAP SCREEN -->
+  <div id="journeyScreen" class="screen hidden">
+    <h2>Our little journey 🗺️💕</h2>
+    <p class="sub">tap a key to unlock the next stop</p>
+    <div id="mapWrap">
+      <!-- cartoon decorations (purely visual) -->
+      <div class="deco" style="left:6%; top:8%;">☁️</div>
+      <div class="deco" style="left:38%; top:4%;">☁️</div>
+      <div class="deco" style="left:70%; top:10%;">☁️</div>
+      <div class="deco" style="left:14%; top:60%;">🌳</div>
+      <div class="deco" style="left:58%; top:60%;">🌳</div>
+      <div class="deco" style="left:88%; top:55%;">🌳</div>
+      <div class="deco" style="left:30%; top:88%;">🌼</div>
+      <div class="deco" style="left:74%; top:90%;">🌼</div>
+      <svg id="mapSvgPath"></svg>
+      <!-- location pins injected by JS -->
+      <!-- moving avatar pair injected by JS -->
+    </div>
+    <div id="storyCards"></div>
+  </div>
+
+  <!-- PASSWORD MODAL -->
+  <div id="modalOverlay" class="hidden">
+    <div id="passwordModal">
+      <h3 id="modalTitle">Stop Locked</h3>
+      <p id="modalSub">Ask me for the key (password) to this stop 🔑</p>
+      <input id="modalPassInput" type="text" placeholder="Enter password">
+      <div id="modalError"></div>
+      <button class="btn-primary" onclick="tryUnlock()">Unlock</button>
+      <div id="clueReveal"></div>
+      <div style="margin-top:10px;">
+        <button class="btn-primary hidden" id="continueBtn" onclick="closeMapModal()">Yay! Continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FINALE SCREEN -->
+  <div id="finaleScreen" class="screen hidden">
+    <div class="emoji-row">🎉💖🎉</div>
+    <h1>We made it through the whole itinerary!</h1>
+    <p id="finaleMessage">Can't wait for all of this, for real. See you soon.</p>
+  </div>
+
+  <script>
+    /* ============================================================
+       CONFIG — EDIT EVERYTHING YOU NEED HERE
+       ============================================================ */
+    const CONFIG = {
+      // login credentials (simple, client-side — fine for a 1-2 day private link)
+      credentials: { username: "cutiepie", password: "changeme123" },
+
+      questionText: "Do you wanna spend your birthday with me??",
+
+      // how many "yes" clicks before it bursts into confetti + the game
+      yesClicksNeeded: 5,
+
+      // funny captions shown over a real cat photo every time "No" gets clicked.
+      // the photo itself comes from cataas.com (Cat-as-a-Service), a free API of real
+      // cat photos — so each popup is a genuine cat pic with your caption on it,
+      // not a reused copyrighted meme image.
+      noClickCaptions: [
+        "no? no.",
+        "this cat does not approve",
+        "wrong answer, try again",
+        "the cat is disappointed in you",
+        "nice try",
+        "absolutely not an option"
+      ],
+
+      // kitty gets more excited with every "Yes" click (emoji + label per stage)
+      kittyStages: [
+        { emoji: "😺", label: "" },
+        { emoji: "😸", label: "kitty is intrigued" },
+        { emoji: "😻", label: "kitty likes where this is going" },
+        { emoji: "🙀", label: "kitty is SHOOK" },
+        { emoji: "😻✨", label: "kitty is losing it" },
+        { emoji: "🐱💥🎉", label: "kitty has fully lost it" }
+      ],
+
+      // your two small round photos that travel together across the map.
+      // put image files next to this index.html on Vercel (e.g. "me.jpg", "her.jpg")
+      // and reference them here as "./me.jpg". Leave as "" to show a placeholder heart instead.
+      photos: {
+        us: "us.jpg"
+      },
+
+      // the journey, in order. First stop is unlocked automatically (it's just the start).
+      // Every stop after that is locked until you give her the password in person.
+      // x / y are position percentages on the map (0-100) — tweak them to reshape the path.
+      // "paragraph" is the little story/note that gets revealed under that stop once unlocked —
+      // write whatever you want here, it shows up exactly as typed.
+      locations: [
+        {
+          name: "Jain (University)",
+          icon: "🎓",
+          x: 8, y: 80,
+          isStart: true,
+          paragraph: "This is where it all starts — write a line about Jain here."
+        },
+        {
+          name: "The Roastery, Koramangala",
+          icon: "☕",
+          x: 26, y: 50,
+          password: "pass1",
+          paragraph: "Write a paragraph about this stop here — it'll be revealed once she enters the password."
+        },
+        {
+          name: "Aquarium Paradise, RT Nagar",
+          icon: "🐠",
+          x: 46, y: 72,
+          password: "pass2",
+          paragraph: "Write a paragraph about this stop here."
+        },
+        {
+          name: "Pizza 4P's",
+          icon: "🍕",
+          x: 64, y: 42,
+          password: "pass3",
+          paragraph: "Write a paragraph about lunch here."
+        },
+        {
+          name: "The Kind Cafe, JP Nagar",
+          icon: "🍰",
+          x: 80, y: 64,
+          password: "pass4",
+          paragraph: "Write a paragraph about this one — if time persists :)"
+        },
+        {
+          name: "Her Place",
+          icon: "🏠",
+          x: 92, y: 24,
+          password: "pass5",
+          paragraph: "Write your closing note here — end of the road, back home."
+        }
+      ],
+
+      finaleMessage: "Can't wait for all of this, for real. See you soon. 💖"
+    };
+
+    /* ============================================================
+       LOGIN
+       ============================================================ */
+    function tryLogin() {
+      const u = document.getElementById('loginUser').value.trim();
+      const p = document.getElementById('loginPass').value;
+      if (u === CONFIG.credentials.username && p === CONFIG.credentials.password) {
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('questionScreen').classList.remove('hidden');
+        document.getElementById('questionText').textContent = CONFIG.questionText;
+      } else {
+        document.getElementById('loginError').textContent = "That's not quite right, try again 🙂";
+      }
+    }
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !document.getElementById('loginScreen').classList.contains('hidden')) tryLogin();
+    });
+
+    /* ============================================================
+       QUESTION SCREEN — growing Yes, dodging No, confetti
+       ============================================================ */
+    let yesClicks = 0;
+    const yesBtn = document.getElementById('yesBtn');
+    const noBtn = document.getElementById('noBtn');
+
+    function dodge() {
+      const row = document.querySelector('.choice-row');
+      const maxX = row.clientWidth - noBtn.clientWidth - 20;
+      const maxY = row.clientHeight - noBtn.clientHeight - 10;
+      const x = Math.random() * Math.max(maxX, 60) - maxX / 2;
+      const y = (Math.random() * Math.max(maxY, 40)) - maxY / 2;
+      noBtn.style.position = 'relative';
+      noBtn.style.left = x + 'px';
+      noBtn.style.top = y + 'px';
+    }
+
+    function handleNoClick() {
+      dodge();          // it still runs away...
+      showCatMeme();    // ...but if it somehow got clicked, she gets a cat meme for her trouble
+    }
+
+    function showCatMeme() {
+      const caption = CONFIG.noClickCaptions[Math.floor(Math.random() * CONFIG.noClickCaptions.length)];
+      // cataas.com generates a real cat photo with the caption burned into the image
+      const url = `https://cataas.com/cat/says/${encodeURIComponent(caption)}?size=40&color=white&_=${Date.now()}`;
+      document.getElementById('catMemeImg').src = url;
+      document.getElementById('catMemeCaption').textContent = caption;
+      document.getElementById('catMemeOverlay').classList.remove('hidden');
+    }
+
+    function closeCatMeme() {
+      document.getElementById('catMemeOverlay').classList.add('hidden');
+    }
+
+    function updateKitty() {
+      const stages = CONFIG.kittyStages;
+      const stage = stages[Math.min(yesClicks, stages.length - 1)];
+      const emojiEl = document.getElementById('kittyEmoji');
+      emojiEl.textContent = stage.emoji;
+      document.getElementById('kittyLabel').textContent = stage.label;
+      emojiEl.classList.remove('kitty-pulse');
+      void emojiEl.offsetWidth;
+      emojiEl.classList.add('kitty-pulse');
+      emojiEl.style.transform = `scale(${1 + yesClicks * 0.12})`;
+    }
+
+    function clickYes() {
+      yesClicks++;
+      const scale = 1 + yesClicks * 0.35;
+      yesBtn.style.transform = `scale(${scale})`;
+      yesBtn.style.fontSize = (1.1 + yesClicks * 0.15) + 'rem';
+      document.getElementById('yesCount').textContent =
+        yesClicks < CONFIG.yesClicksNeeded ? `that's ${yesClicks} yes${yesClicks > 1 ? 'es' : ''}... keep going 😏` : '';
+      updateKitty();
+
+      if (yesClicks >= CONFIG.yesClicksNeeded) {
+        burstConfetti();
+        setTimeout(() => {
+          document.getElementById('questionScreen').classList.add('hidden');
+          document.getElementById('journeyScreen').classList.remove('hidden');
+          initJourney();
+        }, 1400);
+      }
+    }
+
+    function burstConfetti() {
+      const layer = document.getElementById('confettiLayer');
+      const colors = ['#ff6f91', '#ffd36e', '#6effb0', '#6ec6ff', '#d66eff'];
+      for (let i = 0; i < 120; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = Math.random() * 100 + 'vw';
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDuration = (2 + Math.random() * 2) + 's';
+        piece.style.animationDelay = (Math.random() * 0.5) + 's';
+        layer.appendChild(piece);
+        setTimeout(() => piece.remove(), 4500);
+      }
+    }
+
+    /* ============================================================
+       JOURNEY MAP — Jain → ... → her place, unlocked stop by stop
+       ============================================================ */
+    // index of the furthest stop she has unlocked so far (0 = Jain, auto-unlocked)
+    let unlockedUpTo = 0;
+    // which stop index is currently waiting on a password in the modal
+    let pendingIndex = null;
+
+    function initJourney() {
+      const wrap = document.getElementById('mapWrap');
+      // clear anything from a previous render (in case of re-entry)
+      wrap.querySelectorAll('.loc-pin, .avatar-pair').forEach(el => el.remove());
+
+      // draw the winding path connecting every stop
+      const svg = document.getElementById('mapSvgPath');
+      svg.setAttribute('viewBox', '0 0 100 100');
+      svg.setAttribute('preserveAspectRatio', 'none');
+      const pts = CONFIG.locations.map(l => `${l.x},${l.y}`).join(' ');
+      svg.innerHTML = `<polyline points="${pts}" fill="none" stroke="#ffffffaa" stroke-width="1.6"
+    stroke-dasharray="3,2.2" stroke-linecap="round"/>`;
+
+      // place a pin for every location
+      CONFIG.locations.forEach((loc, i) => {
+        const pin = document.createElement('div');
+        pin.className = 'loc-pin';
+        pin.style.left = loc.x + '%';
+        pin.style.top = loc.y + '%';
+        pin.dataset.index = i;
+        pin.onclick = () => onPinClick(i);
+        wrap.appendChild(pin);
+      });
+
+      // the two little avatars that travel together
+      const pair = document.createElement('div');
+      pair.className = 'avatar-pair';
+      pair.id = 'avatarPair';
+      pair.innerHTML = `${avatarImgHtml(CONFIG.photos.us, '🧑')}`;
+      wrap.appendChild(pair);
+
+      renderStoryCards();
+      refreshPins();
+      moveAvatarsTo(0, true);
+    }
+
+    function avatarImgHtml(src, fallbackEmoji) {
+      if (src) {
+        return `<img class="avatar-photo" src="${src}" alt="" onerror="this.outerHTML='<div class=&quot;avatar-photo&quot;>${fallbackEmoji}</div>'">`;
+      }
+      return `<div class="avatar-photo">${fallbackEmoji}</div>`;
+    }
+
+    function refreshPins() {
+      document.querySelectorAll('.loc-pin').forEach(pin => {
+        const i = Number(pin.dataset.index);
+        const loc = CONFIG.locations[i];
+        let state, icon, clickable;
+        if (i <= unlockedUpTo) {
+          state = 'unlocked'; icon = loc.icon; clickable = false;
+        } else if (i === unlockedUpTo + 1) {
+          state = 'locked current'; icon = '🔒'; clickable = true;
+        } else {
+          state = 'locked disabled'; icon = '🔒'; clickable = false;
+        }
+        pin.className = 'loc-pin ' + state;
+        pin.innerHTML = `<div class="pin-icon">${icon}</div><div class="pin-label">${loc.name}</div>`;
+      });
+    }
+
+    function moveAvatarsTo(index, instant) {
+      const loc = CONFIG.locations[index];
+      const pair = document.getElementById('avatarPair');
+      if (instant) { pair.style.transition = 'none'; }
+      pair.style.left = loc.x + '%';
+      pair.style.top = loc.y + '%';
+      if (instant) { requestAnimationFrame(() => { pair.style.transition = ''; }); }
+    }
+
+    function renderStoryCards() {
+      const box = document.getElementById('storyCards');
+      box.innerHTML = '';
+      CONFIG.locations.forEach((loc, i) => {
+        const unlocked = i <= unlockedUpTo;
+        const card = document.createElement('div');
+        card.className = 'story-card' + (unlocked ? '' : ' locked');
+        card.innerHTML = `<h4>${loc.icon} ${loc.name}</h4>
+      <p>${unlocked ? loc.paragraph : 'Locked — unlock this stop on the map to read the note 🔒'}</p>`;
+        box.appendChild(card);
+      });
+    }
+
+    function onPinClick(i) {
+      if (i !== unlockedUpTo + 1) return; // only the next stop in sequence can be opened
+      pendingIndex = i;
+      const loc = CONFIG.locations[i];
+      document.getElementById('modalTitle').textContent = `${loc.name} — Locked`;
+      document.getElementById('modalSub').textContent = "Ask me for the key (password) to this stop 🔑";
+      document.getElementById('modalPassInput').value = '';
+      document.getElementById('modalError').textContent = '';
+      document.getElementById('clueReveal').style.display = 'none';
+      document.getElementById('continueBtn').classList.add('hidden');
+      document.getElementById('modalPassInput').classList.remove('hidden');
+      document.querySelector('#passwordModal button[onclick="tryUnlock()"]').classList.remove('hidden');
+      document.getElementById('modalOverlay').classList.remove('hidden');
+    }
+
+    function tryUnlock() {
+      if (pendingIndex === null) return;
+      const loc = CONFIG.locations[pendingIndex];
+      const val = document.getElementById('modalPassInput').value.trim();
+      if (val === loc.password) {
+        document.getElementById('modalError').textContent = '';
+        const clueBox = document.getElementById('clueReveal');
+        clueBox.style.display = 'block';
+        clueBox.textContent = "Unlocked! 🎉 " + loc.name;
+        document.getElementById('modalPassInput').classList.add('hidden');
+        document.querySelector('#passwordModal button[onclick="tryUnlock()"]').classList.add('hidden');
+        document.getElementById('continueBtn').classList.remove('hidden');
+      } else {
+        document.getElementById('modalError').textContent = "Not quite — try again!";
+      }
+    }
+
+    function closeMapModal() {
+      document.getElementById('modalOverlay').classList.add('hidden');
+      unlockedUpTo = pendingIndex;
+      pendingIndex = null;
+      refreshPins();
+      renderStoryCards();
+      moveAvatarsTo(unlockedUpTo, false);
+
+      if (unlockedUpTo >= CONFIG.locations.length - 1) {
+        setTimeout(() => {
+          burstConfetti();
+          document.getElementById('journeyScreen').classList.add('hidden');
+          document.getElementById('finaleScreen').classList.remove('hidden');
+          document.getElementById('finaleMessage').textContent = CONFIG.finaleMessage;
+        }, 1000);
+      }
+    }
+  </script>
+</body>
+
+</html>
