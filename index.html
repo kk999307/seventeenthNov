@@ -526,6 +526,68 @@
       display: none;
     }
 
+    /* ---------- RESET CONFIRM POPUP ---------- */
+    #resetConfirmOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .45);
+      z-index: 95;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    #resetConfirmCard {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px 20px;
+      max-width: 320px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 14px 34px rgba(0, 0, 0, .3);
+    }
+
+    #resetConfirmCard p {
+      margin: 0 0 16px;
+      font-size: .95rem;
+    }
+
+    #resetConfirmCard .row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    #resetConfirmCard .btn-secondary {
+      background: #f2f2f2;
+      color: #555;
+      padding: 12px 20px;
+    }
+
+    /* ---------- RESET BUTTON (always visible, top corner) ---------- */
+    #resetBtn {
+      position: fixed;
+      top: calc(10px + env(safe-area-inset-top, 0px));
+      right: 10px;
+      z-index: 90;
+      background: rgba(255, 255, 255, .85);
+      color: var(--pink-dark);
+      border: 2px solid var(--pink);
+      padding: 6px 12px;
+      font-size: .72rem;
+      border-radius: 999px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, .15);
+      min-height: unset;
+    }
+
+    @media (max-width:480px) {
+      #resetBtn {
+        font-size: .65rem;
+        padding: 5px 10px;
+      }
+    }
+
     /* ---------- FINALE ---------- */
     #finaleScreen h1 {
       color: var(--pink-dark);
@@ -545,6 +607,21 @@
   <!-- EDIT ME: all the stuff you'll want to customize is in the  -->
   <!-- CONFIG object inside the <script> at the bottom.            -->
   <!-- ========================================================= -->
+
+  <!-- Always-visible "start over" button -->
+  <button id="resetBtn" onclick="resetAll()">↺ Start over</button>
+
+  <!-- reset confirmation popup (used instead of a native confirm() dialog, which some
+     mobile browsers / in-app webviews silently block) -->
+  <div id="resetConfirmOverlay" class="hidden">
+    <div id="resetConfirmCard">
+      <p>Start over from the very beginning?<br>This clears all saved progress.</p>
+      <div class="row">
+        <button class="btn-secondary" onclick="cancelReset()">Cancel</button>
+        <button class="btn-primary" onclick="confirmReset()">Yes, start over</button>
+      </div>
+    </div>
+  </div>
 
   <!-- LOGIN SCREEN -->
   <div id="loginScreen" class="screen">
@@ -625,7 +702,7 @@
   <div id="finaleScreen" class="screen hidden">
     <div class="emoji-row">🎉💖🎉</div>
     <h1>We made it through the whole itinerary!</h1>
-    <p id="finaleMessage">Can't wait for all of this, for real. See you soon.</p>
+    <p id="finaleMessage">I hope you had a great time today hehe.</p>
   </div>
 
   <script>
@@ -634,12 +711,12 @@
        ============================================================ */
     const CONFIG = {
       // login credentials (simple, client-side — fine for a 1-2 day private link)
-      credentials: { username: "cutiepie", password: "changeme123" },
+      credentials: { username: "birthdaygirl", password: "sayyes" },
 
       questionText: "Do you wanna spend your birthday with me??",
 
       // how many "yes" clicks before it bursts into confetti + the game
-      yesClicksNeeded: 5,
+      yesClicksNeeded: 8,
 
       // funny captions shown over a real cat photo every time "No" gets clicked.
       // the photo itself comes from cataas.com (Cat-as-a-Service), a free API of real
@@ -651,7 +728,8 @@
         "wrong answer, try again",
         "the cat is disappointed in you",
         "nice try",
-        "absolutely not an option"
+        "absolutely not an option",
+        "How can you say no to me?"
       ],
 
       // kitty gets more excited with every "Yes" click (emoji + label per stage)
@@ -661,7 +739,9 @@
         { emoji: "😻", label: "kitty likes where this is going" },
         { emoji: "🙀", label: "kitty is SHOOK" },
         { emoji: "😻✨", label: "kitty is losing it" },
-        { emoji: "🐱💥🎉", label: "kitty has fully lost it" }
+        { emoji: "🐱💥🎉", label: "kitty has fully lost it" },
+        { emoji: "🐱💥🎉✨", label: "kitty has died" },
+        { emoji: "🐱💥🎉✨✨", label: "kitty dead" }
       ],
 
       // your two small round photos that travel together across the map.
@@ -682,47 +762,75 @@
           icon: "🎓",
           x: 8, y: 80,
           isStart: true,
-          paragraph: "This is where it all starts — write a line about Jain here."
+          paragraph: "This is where it all starts — we began our journey here, the first time I saw you, the first time we spoke, the first time we had a conversation, the first time you me and Zyna vibed together ufff,  the first time we laughed together, the first time I asked you out, the first time we went out to eat together, the first of sooo many things, Jain was our first for soo many things and I hope to continue having them all throughout our friendship, more to come and I hope you enjoy your birthday with me, it's an honour to celebrate more than one birthday with you, I hope to get more hehehehehe see you soon cutie. Hint:- something you have after breakfast/dosa/idly, keep FITERING options in your mind to get the answer."
         },
         {
           name: "The Roastery, Koramangala",
           icon: "☕",
           x: 26, y: 50,
-          password: "pass1",
-          paragraph: "Write a paragraph about this stop here — it'll be revealed once she enters the password."
+          password: "coffee",
+          paragraph: "ahh I really hope you like this place, I don't even know why am I taking you here? but yeah I wanted to give some gifts here, I have nothing planned lol, happy birthday babyyy this is our first stop, Idk if you've been here before, I hope not but let's have a light snack before our next trip, it's gonna be a short walk once we get there fuel up hehehe, Hint:- This is a place I wanted to take you for a long time, I've mentioned it a few times but never got to go  with you, hopefully today we get sometime, Hydrate yourself and you know I don't like fish heheheheeheh. ."
         },
         {
           name: "Aquarium Paradise, RT Nagar",
           icon: "🐠",
           x: 46, y: 72,
-          password: "pass2",
-          paragraph: "Write a paragraph about this stop here."
+          password: "fish",
+          paragraph: "Well that's one off the bucket list, I wanted to do the food challenge but not when we are wearing nice clothes cause I know how nasty we can be while eating, we eat like pigs so we'll do it another time hehehehee but I hope you liked feeding the fishes and spending time with me here, hope your not tired since we're half way done for the day hehehehee. Hint:- Another place I wanted to take you but it's always booked or maybe we never waited? tried last year but didn't try hard enough, tried this year but coudln't get there on time? maybe now we get a change to go there? or will have to look for a spontaneous place? ehheheehehe All the best.."
         },
         {
           name: "Pizza 4P's",
           icon: "🍕",
           x: 64, y: 42,
-          password: "pass3",
-          paragraph: "Write a paragraph about lunch here."
+          password: "pizza",
+          paragraph: "Yaaayyyyyy when I wrote this I am assuming we went to Pizza 4Ps if not I'm really sorry, please forgive me and I hope wherever we went was good hehe, I'm sorry if we didn't get the pizza, but on to the next stop given you have some time left, cause it's time to do some shit together. Hint: We met here last birthday of yours heehhehehee."
         },
         {
           name: "The Kind Cafe, JP Nagar",
           icon: "🍰",
           x: 80, y: 64,
-          password: "pass4",
-          paragraph: "Write a paragraph about this one — if time persists :)"
+          password: "lastyear",
+          paragraph: "W shi, I am assuming we either went there or are heading home, but I hope you had a beautiful day today and I'm really thankful I got to spend my time with you. Hint: Next stop is your home, password is your home.)"
         },
         {
           name: "Her Place",
           icon: "🏠",
           x: 92, y: 24,
-          password: "pass5",
-          paragraph: "Write your closing note here — end of the road, back home."
+          password: "mom",
+          paragraph: "Yayyyy I hope you guessed the password right. Your mom is your home hehehehe I hope your mom liked this too, Hi Aunty, Thank you so much for sending her to meet and spend her time with me, I hope she had a good time. Thank you again. This is for you R, Thanks for spending time with me on the day you were born, I know your going Kuwait in 2days and I hope to see you soon, I'll try to miss you :sunglasses:."
         }
       ],
 
-      finaleMessage: "Can't wait for all of this, for real. See you soon. 💖"
+      finaleMessage: "I hope you had a really good day today, Thanks for celebrating it with me. 💖"
     };
+
+    /* ============================================================
+       LOCAL PERSISTENCE — remembers her progress for 14 hours
+       (localStorage, not a real cookie — see note in chat for why)
+       ============================================================ */
+    const STORAGE_KEY = 'askHerOut_state_v1';
+    const STORAGE_TTL_MS = 14 * 60 * 60 * 1000; // 14 hours — change this number to adjust
+
+    function loadSavedState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        const data = JSON.parse(raw);
+        if (!data.ts || (Date.now() - data.ts) > STORAGE_TTL_MS) {
+          localStorage.removeItem(STORAGE_KEY); // expired — start fresh
+          return null;
+        }
+        return data;
+      } catch (e) { return null; } // storage blocked (e.g. private browsing) — just don't persist
+    }
+
+    function saveState(partial) {
+      try {
+        const current = loadSavedState() || {};
+        const merged = Object.assign({}, current, partial, { ts: Date.now() });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+      } catch (e) { /* fail silently, nothing breaks without it */ }
+    }
 
     /* ============================================================
        LOGIN
@@ -734,6 +842,7 @@
         document.getElementById('loginScreen').classList.add('hidden');
         document.getElementById('questionScreen').classList.remove('hidden');
         document.getElementById('questionText').textContent = CONFIG.questionText;
+        saveState({ loggedIn: true, yesClicks: 0 });
       } else {
         document.getElementById('loginError').textContent = "That's not quite right, try again 🙂";
       }
@@ -798,9 +907,11 @@
       document.getElementById('yesCount').textContent =
         yesClicks < CONFIG.yesClicksNeeded ? `that's ${yesClicks} yes${yesClicks > 1 ? 'es' : ''}... keep going 😏` : '';
       updateKitty();
+      saveState({ yesClicks });
 
       if (yesClicks >= CONFIG.yesClicksNeeded) {
         burstConfetti();
+        saveState({ journeyStarted: true });
         setTimeout(() => {
           document.getElementById('questionScreen').classList.add('hidden');
           document.getElementById('journeyScreen').classList.remove('hidden');
@@ -865,7 +976,7 @@
 
       renderStoryCards();
       refreshPins();
-      moveAvatarsTo(0, true);
+      moveAvatarsTo(unlockedUpTo, true);
     }
 
     function avatarImgHtml(src, fallbackEmoji) {
@@ -875,20 +986,23 @@
       return `<div class="avatar-photo">${fallbackEmoji}</div>`;
     }
 
+    // name shown for a stop before it's unlocked — keeps the location a surprise
+    function hiddenLabel(i) { return `Stop ${i + 1} 🔒`; }
+
     function refreshPins() {
       document.querySelectorAll('.loc-pin').forEach(pin => {
         const i = Number(pin.dataset.index);
         const loc = CONFIG.locations[i];
-        let state, icon, clickable;
+        let state, icon, label;
         if (i <= unlockedUpTo) {
-          state = 'unlocked'; icon = loc.icon; clickable = false;
+          state = 'unlocked'; icon = loc.icon; label = loc.name;
         } else if (i === unlockedUpTo + 1) {
-          state = 'locked current'; icon = '🔒'; clickable = true;
+          state = 'locked current'; icon = '🔒'; label = hiddenLabel(i);
         } else {
-          state = 'locked disabled'; icon = '🔒'; clickable = false;
+          state = 'locked disabled'; icon = '🔒'; label = hiddenLabel(i);
         }
         pin.className = 'loc-pin ' + state;
-        pin.innerHTML = `<div class="pin-icon">${icon}</div><div class="pin-label">${loc.name}</div>`;
+        pin.innerHTML = `<div class="pin-icon">${icon}</div><div class="pin-label">${label}</div>`;
       });
     }
 
@@ -908,8 +1022,9 @@
         const unlocked = i <= unlockedUpTo;
         const card = document.createElement('div');
         card.className = 'story-card' + (unlocked ? '' : ' locked');
-        card.innerHTML = `<h4>${loc.icon} ${loc.name}</h4>
-      <p>${unlocked ? loc.paragraph : 'Locked — unlock this stop on the map to read the note 🔒'}</p>`;
+        const heading = unlocked ? `${loc.icon} ${loc.name}` : `🔒 ${hiddenLabel(i)}`;
+        card.innerHTML = `<h4>${heading}</h4>
+      <p>${unlocked ? loc.paragraph : 'Locked — unlock this stop on the map to reveal where it is and read the note 🔒'}</p>`;
         box.appendChild(card);
       });
     }
@@ -917,8 +1032,7 @@
     function onPinClick(i) {
       if (i !== unlockedUpTo + 1) return; // only the next stop in sequence can be opened
       pendingIndex = i;
-      const loc = CONFIG.locations[i];
-      document.getElementById('modalTitle').textContent = `${loc.name} — Locked`;
+      document.getElementById('modalTitle').textContent = `${hiddenLabel(i)}`;
       document.getElementById('modalSub').textContent = "Ask me for the key (password) to this stop 🔑";
       document.getElementById('modalPassInput').value = '';
       document.getElementById('modalError').textContent = '';
@@ -953,6 +1067,7 @@
       refreshPins();
       renderStoryCards();
       moveAvatarsTo(unlockedUpTo, false);
+      saveState({ journeyStarted: true, unlockedUpTo });
 
       if (unlockedUpTo >= CONFIG.locations.length - 1) {
         setTimeout(() => {
@@ -960,8 +1075,66 @@
           document.getElementById('journeyScreen').classList.add('hidden');
           document.getElementById('finaleScreen').classList.remove('hidden');
           document.getElementById('finaleMessage').textContent = CONFIG.finaleMessage;
+          saveState({ finished: true });
         }, 1000);
       }
+    }
+
+    /* ============================================================
+       RESTORE ON LOAD — if she reopens the link within 14 hours,
+       pick up right where she left off instead of starting over
+       ============================================================ */
+    function restoreOnLoad() {
+      const saved = loadSavedState();
+      if (!saved) return; // nothing saved / expired -> default login screen stays as-is
+
+      if (saved.finished || (saved.journeyStarted && (saved.unlockedUpTo || 0) >= CONFIG.locations.length - 1)) {
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('questionScreen').classList.add('hidden');
+        document.getElementById('journeyScreen').classList.add('hidden');
+        document.getElementById('finaleScreen').classList.remove('hidden');
+        document.getElementById('finaleMessage').textContent = CONFIG.finaleMessage;
+        return;
+      }
+
+      if (saved.journeyStarted) {
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('questionScreen').classList.add('hidden');
+        document.getElementById('journeyScreen').classList.remove('hidden');
+        unlockedUpTo = saved.unlockedUpTo || 0;
+        initJourney();
+        return;
+      }
+
+      if (saved.loggedIn) {
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('questionScreen').classList.remove('hidden');
+        document.getElementById('questionText').textContent = CONFIG.questionText;
+        yesClicks = saved.yesClicks || 0;
+        if (yesClicks > 0) {
+          yesBtn.style.transform = `scale(${1 + yesClicks * 0.35})`;
+          yesBtn.style.fontSize = (1.1 + yesClicks * 0.15) + 'rem';
+          document.getElementById('yesCount').textContent = `that's ${yesClicks} yes${yesClicks > 1 ? 'es' : ''}... keep going 😏`;
+          updateKitty();
+        }
+      }
+    }
+    restoreOnLoad();
+
+    /* ============================================================
+       RESET — always-visible button to wipe saved progress
+       (uses a custom popup instead of window.confirm(), since some
+       mobile/in-app browsers silently block native confirm dialogs)
+       ============================================================ */
+    function resetAll() {
+      document.getElementById('resetConfirmOverlay').classList.remove('hidden');
+    }
+    function cancelReset() {
+      document.getElementById('resetConfirmOverlay').classList.add('hidden');
+    }
+    function confirmReset() {
+      try { localStorage.removeItem(STORAGE_KEY); } catch (e) { }
+      location.reload();
     }
   </script>
 </body>
