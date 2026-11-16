@@ -309,6 +309,7 @@
     /* ---------- JOURNEY MAP ---------- */
     #journeyScreen {
       padding-top: 30px;
+      justify-content: flex-start;
     }
 
     #journeyScreen h2 {
@@ -588,15 +589,30 @@
       }
     }
 
-    /* ---------- FINALE ---------- */
-    #finaleScreen h1 {
-      color: var(--pink-dark);
-      font-size: clamp(1.8rem, 6vw, 3rem);
+    /* ---------- FINALE (bottom card, not a full screen) ---------- */
+    .finale-card {
+      width: min(820px, 94vw);
+      margin: 18px auto 30px;
+      padding: 22px 18px;
+      background: rgba(255, 255, 255, .92);
+      border-radius: 18px;
+      box-shadow: 0 8px 22px rgba(214, 67, 107, .25);
+      text-align: center;
     }
 
-    #finaleScreen .emoji-row {
-      font-size: 2.4rem;
-      margin: 14px 0;
+    .finale-card h1 {
+      color: var(--pink-dark);
+      font-size: clamp(1.3rem, 4.5vw, 1.9rem);
+      margin: 6px 0;
+    }
+
+    .finale-card .emoji-row {
+      font-size: 2rem;
+      margin: 4px 0;
+    }
+
+    .finale-card p {
+      margin: 6px 0 0;
     }
   </style>
 </head>
@@ -681,6 +697,13 @@
       <!-- moving avatar pair injected by JS -->
     </div>
     <div id="storyCards"></div>
+
+    <!-- FINALE (bottom card, not a full screen) -->
+    <div id="finaleScreen" class="finale-card hidden">
+      <div class="emoji-row">🎉💖🎉</div>
+      <h1>We made it through the whole itinerary!</h1>
+      <p id="finaleMessage">I hope you had a great time today hehe.</p>
+    </div>
   </div>
 
   <!-- PASSWORD MODAL -->
@@ -696,13 +719,6 @@
         <button class="btn-primary hidden" id="continueBtn" onclick="closeMapModal()">Yay! Continue →</button>
       </div>
     </div>
-  </div>
-
-  <!-- FINALE SCREEN -->
-  <div id="finaleScreen" class="screen hidden">
-    <div class="emoji-row">🎉💖🎉</div>
-    <h1>We made it through the whole itinerary!</h1>
-    <p id="finaleMessage">I hope you had a great time today hehe.</p>
   </div>
 
   <script>
@@ -762,7 +778,7 @@
           icon: "🎓",
           x: 8, y: 80,
           isStart: true,
-          paragraph: "This is where it all starts — we began our journey here, the first time I saw you, the first time we spoke, the first time we had a conversation, the first time you me and Zyna vibed together ufff,  the first time we laughed together, the first time I asked you out, the first time we went out to eat together, the first of sooo many things, Jain was our first for soo many things and I hope to continue having them all throughout our friendship, more to come and I hope you enjoy your birthday with me, it's an honour to celebrate more than one birthday with you, I hope to get more hehehehehe see you soon cutie. Hint:- something you have after breakfast/dosa/idly, keep FITERING options in your mind to get the answer."
+          paragraph: "This is where it all starts — we began our journey here, the first time I saw you, the first time we spoke, the first time we had a conversation, the first time you me and Zyna vibed together ufff,  the first time we laughed together, the first time I asked you out, the first time we went out to eat together, the first of sooo many things, Jain was our first for soo many things and I hope to continue having them all throughout our friendship, more to come and I hope you enjoy your birthday with me, it's an honour to celebrate more than one birthday with you, I hope to get more hehehehehe see you soon cutie. Hint:- something you have after breakfast/dosa/idly, keep FILTERING options in your mind to get the answer."
         },
         {
           name: "The Roastery, Koramangala",
@@ -789,7 +805,7 @@
           name: "The Kind Cafe, JP Nagar",
           icon: "🍰",
           x: 80, y: 64,
-          password: "lastyear",
+          password: "kind",
           paragraph: "W shi, I am assuming we either went there or are heading home, but I hope you had a beautiful day today and I'm really thankful I got to spend my time with you. Hint: Next stop is your home, password is your home.)"
         },
         {
@@ -1033,7 +1049,7 @@
       if (i !== unlockedUpTo + 1) return; // only the next stop in sequence can be opened
       pendingIndex = i;
       document.getElementById('modalTitle').textContent = `${hiddenLabel(i)}`;
-      document.getElementById('modalSub').textContent = "Ask me for the key (password) to this stop 🔑";
+      document.getElementById('modalSub').textContent = "Guess the key (password) to this stop 🔑";
       document.getElementById('modalPassInput').value = '';
       document.getElementById('modalError').textContent = '';
       document.getElementById('clueReveal').style.display = 'none';
@@ -1060,6 +1076,17 @@
       }
     }
 
+    // shows the finale as a card at the bottom of the journey screen
+    // (the map and all story cards stay visible above it)
+    function showFinale(scroll) {
+      const fin = document.getElementById('finaleScreen');
+      document.getElementById('finaleMessage').textContent = CONFIG.finaleMessage;
+      fin.classList.remove('hidden');
+      if (scroll) {
+        setTimeout(() => fin.scrollIntoView({ behavior: 'smooth', block: 'end' }), 100);
+      }
+    }
+
     function closeMapModal() {
       document.getElementById('modalOverlay').classList.add('hidden');
       unlockedUpTo = pendingIndex;
@@ -1072,9 +1099,7 @@
       if (unlockedUpTo >= CONFIG.locations.length - 1) {
         setTimeout(() => {
           burstConfetti();
-          document.getElementById('journeyScreen').classList.add('hidden');
-          document.getElementById('finaleScreen').classList.remove('hidden');
-          document.getElementById('finaleMessage').textContent = CONFIG.finaleMessage;
+          showFinale(true);
           saveState({ finished: true });
         }, 1000);
       }
@@ -1091,9 +1116,10 @@
       if (saved.finished || (saved.journeyStarted && (saved.unlockedUpTo || 0) >= CONFIG.locations.length - 1)) {
         document.getElementById('loginScreen').classList.add('hidden');
         document.getElementById('questionScreen').classList.add('hidden');
-        document.getElementById('journeyScreen').classList.add('hidden');
-        document.getElementById('finaleScreen').classList.remove('hidden');
-        document.getElementById('finaleMessage').textContent = CONFIG.finaleMessage;
+        document.getElementById('journeyScreen').classList.remove('hidden');
+        unlockedUpTo = CONFIG.locations.length - 1;
+        initJourney();
+        showFinale(false);
         return;
       }
 
